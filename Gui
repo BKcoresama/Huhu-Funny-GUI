@@ -1,0 +1,514 @@
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local function disableTouched(container)
+    for _, v in ipairs(container:GetDescendants()) do
+        if v:IsA("BasePart") then
+            pcall(function()
+                v.Touched:DisconnectAll()
+            end)
+            v.CanTouch = false
+        end
+    end
+end
+
+disableTouched(workspace.BaseMap.idk["1hu_g_SHOP"])
+disableTouched(workspace.BaseMap.idk["9B99_SHOP"])
+
+local qidjdjxkaoaiqhqjdjdk = "2217"
+
+local function checkPassword(input)
+    return input == qidjdjxkaoaiqhqjdjdk
+end
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "CheatGUI"
+screenGui.Parent = player.PlayerGui
+screenGui.ResetOnSpawn = false
+
+local miniGui = nil
+
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 280, 0, 480)
+mainFrame.Position = UDim2.new(0, 10, 0.5, -240)
+mainFrame.BackgroundColor3 = Color3.new(1, 0.7, 0.8)
+mainFrame.BackgroundTransparency = 0.3
+mainFrame.BorderSizePixel = 0
+mainFrame.Active = true
+mainFrame.Draggable = true
+mainFrame.Parent = screenGui
+
+local titleBar = Instance.new("Frame")
+titleBar.Size = UDim2.new(1, 0, 0, 28)
+titleBar.BackgroundColor3 = Color3.new(1, 0.5, 0.7)
+titleBar.BorderSizePixel = 0
+titleBar.Parent = mainFrame
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -28, 1, 0)
+title.Position = UDim2.new(0, 5, 0, 0)
+title.BackgroundTransparency = 1
+title.Text = "Huhu Funny Gui"
+title.TextSize = 16
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Font = Enum.Font.GothamBold
+title.Parent = titleBar
+
+task.spawn(function()
+    while true do
+        title.TextColor3 = Color3.fromHSV(tick() % 2 / 2, 1, 1)
+        task.wait(0.1)
+    end
+end)
+
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.new(0, 28, 0, 28)
+closeBtn.Position = UDim2.new(1, -28, 0, 0)
+closeBtn.BackgroundColor3 = Color3.new(0.8, 0.1, 0.1)
+closeBtn.BorderSizePixel = 0
+closeBtn.Text = "关"
+closeBtn.TextColor3 = Color3.new(1, 1, 1)
+closeBtn.TextSize = 16
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.Parent = titleBar
+closeBtn.MouseButton1Click:Connect(function()
+    screenGui:Destroy()
+    if miniGui then miniGui:Destroy() end
+end)
+
+local pageContainer = Instance.new("Frame")
+pageContainer.Size = UDim2.new(1, 0, 1, -28)
+pageContainer.Position = UDim2.new(0, 0, 0, 28)
+pageContainer.BackgroundTransparency = 1
+pageContainer.Parent = mainFrame
+
+local pages, currentPage = {}, 1
+for i = 1, 2 do
+    local p = Instance.new("Frame")
+    p.Size = UDim2.new(1, 0, 1, 0)
+    p.BackgroundColor3 = Color3.new(1, 0.7, 0.8)
+    p.BackgroundTransparency = 0.5
+    p.Visible = (i == 1)
+    p.Parent = pageContainer
+    pages[i] = p
+end
+
+local function makeBtn(parent, text, pos, size, color)
+    local b = Instance.new("TextButton")
+    b.Size = size or UDim2.new(0.25, 0, 0, 24)
+    b.Position = pos
+    b.BackgroundColor3 = color or Color3.new(0.3, 0.3, 0.4)
+    b.BorderSizePixel = 0
+    b.Text = text
+    b.TextColor3 = Color3.new(1, 1, 1)
+    b.TextSize = 12
+    b.Font = Enum.Font.Gotham
+    b.Parent = parent
+    return b
+end
+
+local function makeLabel(parent, text, pos)
+    local l = Instance.new("TextLabel")
+    l.Size = UDim2.new(0.9, 0, 0, 18)
+    l.Position = pos
+    l.BackgroundTransparency = 1
+    l.Text = text
+    l.TextColor3 = Color3.new(1, 1, 1)
+    l.TextSize = 13
+    l.TextXAlignment = Enum.TextXAlignment.Left
+    l.Parent = parent
+    return l
+end
+
+local function makeBox(parent, text, pos, w)
+    local b = Instance.new("TextBox")
+    b.Size = UDim2.new(w or 0.2, 0, 0, 22)
+    b.Position = pos
+    b.BackgroundColor3 = Color3.new(0.2, 0.2, 0.3)
+    b.BorderSizePixel = 0
+    b.Text = text
+    b.TextColor3 = Color3.new(1, 1, 1)
+    b.TextSize = 12
+    b.Font = Enum.Font.Gotham
+    b.Parent = parent
+    return b
+end
+
+local p1 = pages[1]
+
+makeLabel(p1, "触发Huhu的对话", UDim2.new(0.05, 0, 0.02, 0))
+local promptToggle = makeBtn(p1, "□", UDim2.new(0.87, 0, 0.015, 0), UDim2.new(0.08, 0, 0, 24))
+local intervalBox = makeBox(p1, "0.1", UDim2.new(0.45, 0, 0.075, 0), 0.18)
+makeLabel(p1, "间隔设置(0.1~1)", UDim2.new(0.05, 0, 0.08, 0))
+
+local hutalk = workspace.BaseMap.idk["1hu_g_SHOP"].ProximityPrompt
+local running, interval, thread = false, 0.1, nil
+local function togglePrompt()
+    if running then
+        running = false
+        if thread then task.cancel(thread) end
+        promptToggle.Text, promptToggle.BackgroundColor3 = "□", Color3.new(0.3, 0.3, 0.4)
+        return
+    end
+    running = true
+    promptToggle.Text, promptToggle.BackgroundColor3 = "■", Color3.new(0.2, 0.6, 0.2)
+    thread = task.spawn(function()
+        while running do fireproximityprompt(hutalk) task.wait(interval) end
+    end)
+end
+promptToggle.MouseButton1Click:Connect(togglePrompt)
+intervalBox.FocusLost:Connect(function()
+    local n = tonumber(intervalBox.Text)
+    if n and n >= 0.1 and n <= 1 then
+        interval = n
+        intervalBox.Text = tostring(interval)
+        if running then togglePrompt() togglePrompt() end
+    else intervalBox.Text = tostring(interval) end
+end)
+
+makeLabel(p1, "触发9B的对话", UDim2.new(0.05, 0, 0.16, 0))
+local promptToggle9B = makeBtn(p1, "□", UDim2.new(0.87, 0, 0.155, 0), UDim2.new(0.08, 0, 0, 24))
+local intervalBox9B = makeBox(p1, "0.1", UDim2.new(0.45, 0, 0.215, 0), 0.18)
+makeLabel(p1, "间隔设置(0.1~1)", UDim2.new(0.05, 0, 0.22, 0))
+
+local hutalk9B = workspace.BaseMap.idk["9B99_SHOP"].ProximityPrompt
+local running9B, interval9B, thread9B = false, 0.1, nil
+local function togglePrompt9B()
+    if running9B then
+        running9B = false
+        if thread9B then task.cancel(thread9B) end
+        promptToggle9B.Text, promptToggle9B.BackgroundColor3 = "□", Color3.new(0.3, 0.3, 0.4)
+        return
+    end
+    running9B = true
+    promptToggle9B.Text, promptToggle9B.BackgroundColor3 = "■", Color3.new(0.2, 0.6, 0.2)
+    thread9B = task.spawn(function()
+        while running9B do fireproximityprompt(hutalk9B) task.wait(interval9B) end
+    end)
+end
+promptToggle9B.MouseButton1Click:Connect(togglePrompt9B)
+intervalBox9B.FocusLost:Connect(function()
+    local n = tonumber(intervalBox9B.Text)
+    if n and n >= 0.1 and n <= 1 then
+        interval9B = n
+        intervalBox9B.Text = tostring(interval9B)
+        if running9B then togglePrompt9B() togglePrompt9B() end
+    else intervalBox9B.Text = tostring(interval9B) end
+end)
+
+makeLabel(p1, "刷SickRatings", UDim2.new(0.05, 0, 0.30, 0))
+local countBox = makeBox(p1, "50000", UDim2.new(0.3, 0, 0.355, 0), 0.3)
+makeLabel(p1, "数量:", UDim2.new(0.05, 0, 0.36, 0))
+local sickBtn = makeBtn(p1, "Get", UDim2.new(0.73, 0, 0.355, 0), UDim2.new(0.22, 0, 0, 24))
+sickBtn.TextColor3 = Color3.new(0.6, 0.3, 0.8)
+local sickStatus = makeLabel(p1, "", UDim2.new(0.05, 0, 0.44, 0))
+sickStatus.TextSize = 11
+
+local event = game:GetService("ReplicatedStorage"):WaitForChild("SickRatingsEvent")
+local sickRunning = false
+sickBtn.MouseButton1Click:Connect(function()
+    if sickRunning then return end
+    local num = tonumber(countBox.Text)
+    if not num or num <= 0 then sickStatus.Text, sickStatus.TextColor3 = "无效数字", Color3.new(1,0.3,0.3) return end
+    sickRunning = true
+    sickBtn.Text, sickBtn.BackgroundColor3 = "...", Color3.new(0.8,0.5,0.2)
+    sickStatus.Text, sickStatus.TextColor3 = "发送中...", Color3.new(1,1,0.5)
+    task.spawn(function()
+        local s = 0
+        for i = 1, num do pcall(function() event:FireServer("SickRatings") s = s + 1 end)
+            if i % 100 == 0 then task.wait() end
+        end
+        sickStatus.Text, sickStatus.TextColor3 = s.."/"..num, Color3.new(0.3,0.8,0.3)
+        sickBtn.Text, sickBtn.BackgroundColor3 = "Get", Color3.new(0.3,0.3,0.4)
+        sickRunning = false
+    end)
+end)
+
+makeLabel(p1, "删除空气墙", UDim2.new(0.05, 0, 0.52, 0))
+local delBarrierBtn = makeBtn(p1, "点击删除", UDim2.new(0.7, 0, 0.515, 0), UDim2.new(0.25, 0, 0, 24))
+delBarrierBtn.BackgroundColor3 = Color3.new(0.8, 0.2, 0.2)
+local delStatus = makeLabel(p1, "", UDim2.new(0.05, 0, 0.59, 0))
+delStatus.TextSize = 11
+
+delBarrierBtn.MouseButton1Click:Connect(function()
+    local lot = workspace.BaseMap:FindFirstChild("Repaved Parking Lot")
+    local count = 0
+    if lot then
+        local targets = {
+            lot:GetChildren()[102],
+            lot:GetChildren()[100],
+            lot:FindFirstChild("Part"),
+            lot:GetChildren()[101]
+        }
+        for _, obj in ipairs(targets) do
+            if obj then obj:Destroy(); count = count + 1 end
+        end
+    end
+    local barrier = workspace.BaseMap.idk:FindFirstChild("HexagonBarrier")
+    if barrier then barrier:Destroy(); count = count + 1 end
+    if count > 0 then
+        delStatus.Text, delStatus.TextColor3 = "已删除 " .. count .. " 个", Color3.new(0.3, 0.8, 0.3)
+    else
+        delStatus.Text, delStatus.TextColor3 = "找不到目标", Color3.new(1, 0.3, 0.3)
+    end
+end)
+
+local function createLockedFeature()
+    local container = Instance.new("Frame")
+    container.Size = UDim2.new(1, 0, 0, 100)
+    container.Position = UDim2.new(0, 0, 0.63, 0)
+    container.BackgroundTransparency = 1
+    container.Parent = p1
+
+    makeLabel(container, "你不想知道这是干什么的", UDim2.new(0.05, 0, 0.02, 0))
+
+    local teleportBtn = makeBtn(container, "传送模型", UDim2.new(0.7, 0, 0.065, 0), UDim2.new(0.25, 0, 0, 24))
+    teleportBtn.BackgroundColor3 = Color3.new(0.5, 0.2, 0.6)
+
+    makeLabel(container, "🌿HuHu", UDim2.new(0.05, 0, 0.35, 0))
+    local loopTeleportToggle = makeBtn(container, "□", UDim2.new(0.87, 0, 0.345, 0), UDim2.new(0.08, 0, 0, 24))
+
+    local overlay = Instance.new("Frame")
+    overlay.Size = UDim2.new(1, 0, 1, 0)
+    overlay.Position = UDim2.new(0, 0, 0, 0)
+    overlay.BackgroundColor3 = Color3.new(1, 1, 0)
+    overlay.BackgroundTransparency = 0.4
+    overlay.BorderSizePixel = 0
+    overlay.Parent = container
+    overlay.ZIndex = 10
+
+    local lockInput = Instance.new("TextBox")
+    lockInput.Size = UDim2.new(0.5, 0, 0, 30)
+    lockInput.Position = UDim2.new(0.25, 0, 0.45, 0)
+    lockInput.BackgroundColor3 = Color3.new(1, 1, 1)
+    lockInput.BorderSizePixel = 0
+    lockInput.Text = ""
+    lockInput.PlaceholderText = "输入密码解锁..."
+    lockInput.TextColor3 = Color3.new(0, 0, 0)
+    lockInput.TextSize = 14
+    lockInput.Font = Enum.Font.Gotham
+    lockInput.Parent = overlay
+    lockInput.ZIndex = 11
+
+    local confirmBtn = Instance.new("TextButton")
+    confirmBtn.Size = UDim2.new(0.25, 0, 0, 30)
+    confirmBtn.Position = UDim2.new(0.75, -5, 0.45, 0)
+    confirmBtn.BackgroundColor3 = Color3.new(0.2, 0.6, 0.2)
+    confirmBtn.BorderSizePixel = 0
+    confirmBtn.Text = "确认"
+    confirmBtn.TextColor3 = Color3.new(1, 1, 1)
+    confirmBtn.TextSize = 14
+    confirmBtn.Font = Enum.Font.Gotham
+    confirmBtn.Parent = overlay
+    confirmBtn.ZIndex = 11
+
+    local lockStatus = Instance.new("TextLabel")
+    lockStatus.Size = UDim2.new(1, 0, 0, 20)
+    lockStatus.Position = UDim2.new(0, 0, 0.7, 0)
+    lockStatus.BackgroundTransparency = 1
+    lockStatus.Text = ""
+    lockStatus.TextColor3 = Color3.new(1, 0, 0)
+    lockStatus.TextSize = 14
+    lockStatus.Font = Enum.Font.Gotham
+    lockStatus.Parent = overlay
+    lockStatus.ZIndex = 11
+
+    local loopRunning = false
+    local loopThread = nil
+
+    teleportBtn.MouseButton1Click:Connect(function()
+        if overlay.Visible then return end
+        local character = player.Character
+        if character then
+            local rootPart = character:FindFirstChild("HumanoidRootPart")
+            if rootPart then
+                local playerPos = rootPart.Position
+                local model = workspace.BaseMap.idk["1hu_g_SHOP"]
+                model:SetPrimaryPartCFrame(CFrame.new(playerPos))
+            end
+        end
+    end)
+
+    local function toggleLoopTeleport()
+        if overlay.Visible then return end
+        if loopRunning then
+            loopRunning = false
+            if loopThread then task.cancel(loopThread) end
+            loopTeleportToggle.Text, loopTeleportToggle.BackgroundColor3 = "□", Color3.new(0.3, 0.3, 0.4)
+            return
+        end
+        loopRunning = true
+        loopTeleportToggle.Text, loopTeleportToggle.BackgroundColor3 = "■", Color3.new(0.2, 0.6, 0.2)
+        loopThread = task.spawn(function()
+            local model = workspace.BaseMap.idk["1hu_g_SHOP"]
+            local pants = model:FindFirstChild("Pants")
+            local shirt = model:FindFirstChild("Shirt")
+            if pants then pants:Destroy() end
+            if shirt then shirt:Destroy() end
+            while loopRunning do
+                local character = player.Character
+                if character then
+                    local rootPart = character:FindFirstChild("HumanoidRootPart")
+                    if rootPart and model then
+                        rootPart.CFrame = CFrame.new(model:GetPivot().Position)
+                    end
+                end
+                task.wait(0.1)
+            end
+        end)
+    end
+    loopTeleportToggle.MouseButton1Click:Connect(toggleLoopTeleport)
+
+    confirmBtn.MouseButton1Click:Connect(function()
+        if checkPassword(lockInput.Text) then
+            overlay.Visible = false
+            lockStatus.Text = "解锁成功！"
+            lockStatus.TextColor3 = Color3.new(0, 1, 0)
+        else
+            lockStatus.Text = "密码错误！"
+            lockStatus.TextColor3 = Color3.new(1, 0, 0)
+            lockInput.Text = ""
+        end
+    end)
+
+    lockInput.FocusLost:Connect(function(enterPressed)
+        if enterPressed then
+            if checkPassword(lockInput.Text) then
+                overlay.Visible = false
+                lockStatus.Text = "解锁成功！"
+                lockStatus.TextColor3 = Color3.new(0, 1, 0)
+            else
+                lockStatus.Text = "密码错误！"
+                lockStatus.TextColor3 = Color3.new(1, 0, 0)
+                lockInput.Text = ""
+            end
+        end
+    end)
+end
+
+createLockedFeature()
+
+local p2 = pages[2]
+local function makeDialogModifier(parent, path, name, y)
+    makeLabel(parent, name, UDim2.new(0.05, 0, y, 0))
+    local box = makeBox(parent, "修改对话内容", UDim2.new(0.05, 0, y + 0.065, 0), 0.5)
+    local btn = makeBtn(parent, "□", UDim2.new(0.87, 0, y + 0.06, 0), UDim2.new(0.08, 0, 0, 24))
+    local status = makeLabel(parent, "", UDim2.new(0.05, 0, y + 0.14, 0))
+    status.TextSize = 11
+    status.TextColor3 = Color3.new(0.5,0.5,0.5)
+    local running, thread = false, nil
+    local function toggle()
+        if running then
+            running = false
+            if thread then task.cancel(thread) end
+            btn.Text, btn.BackgroundColor3 = "□", Color3.new(0.3,0.3,0.4)
+            status.Text, status.TextColor3 = "已停止", Color3.new(0.5,0.5,0.5)
+            return
+        end
+        if not path then status.Text, status.TextColor3 = "找不到", Color3.new(1,0.3,0.3) return end
+        running = true
+        btn.Text, btn.BackgroundColor3 = "■", Color3.new(0.2,0.6,0.2)
+        status.Text, status.TextColor3 = "运行中", Color3.new(0.3,0.8,0.3)
+        thread = task.spawn(function()
+            while running do pcall(function() path.Text = box.Text end) task.wait(0.1) end
+        end)
+    end
+    btn.MouseButton1Click:Connect(toggle)
+    box.FocusLost:Connect(function()
+        if running then
+            pcall(function() path.Text = box.Text end)
+            status.Text, status.TextColor3 = "已更新", Color3.new(0.3,0.8,0.3)
+            task.wait(0.3)
+            if running then status.Text = "运行中" end
+        end
+    end)
+end
+
+makeDialogModifier(p2, workspace.BaseMap.idk["1hu_g_SHOP"].Head.gui.dialog, "1hu_g_SHOP", 0.02)
+makeDialogModifier(p2, workspace.BaseMap.idk["9B99_SHOP"].Head.gui.dialog, "9B99_SHOP", 0.30)
+
+local noclipToggle = makeBtn(p2, "Noclip: □", UDim2.new(0.05, 0, 0.70, 0), UDim2.new(0.35, 0, 0, 28))
+local noclipOn, noclipConns = false, {}
+local function toggleNoclip()
+    noclipOn = not noclipOn
+    noclipToggle.Text = noclipOn and "Noclip: ■" or "Noclip: □"
+    noclipToggle.BackgroundColor3 = noclipOn and Color3.new(0.2,0.6,0.2) or Color3.new(0.3,0.3,0.4)
+    for _, c in ipairs(noclipConns) do c:Disconnect() end
+    noclipConns = {}
+    if not noclipOn then return end
+    local function onChar(char)
+        local conn = RunService.Stepped:Connect(function()
+            for _, p in ipairs(char:GetChildren()) do if p:IsA("BasePart") then p.CanCollide = false end end
+        end)
+        table.insert(noclipConns, conn)
+    end
+    if player.Character then onChar(player.Character) end
+    table.insert(noclipConns, player.CharacterAdded:Connect(onChar))
+end
+noclipToggle.MouseButton1Click:Connect(toggleNoclip)
+
+local leftArrow = makeBtn(mainFrame, "<", UDim2.new(0, 5, 1, -28), UDim2.new(0, 32, 0, 26))
+local rightArrow = makeBtn(mainFrame, ">", UDim2.new(1, -37, 1, -28), UDim2.new(0, 32, 0, 26))
+local pageIndicator = makeLabel(mainFrame, "1/2", UDim2.new(0.5, -25, 1, -28))
+pageIndicator.TextSize, pageIndicator.TextXAlignment = 13, Enum.TextXAlignment.Center
+
+leftArrow.MouseButton1Click:Connect(function()
+    if currentPage > 1 then
+        currentPage = currentPage - 1
+        for i, p in ipairs(pages) do p.Visible = (i == currentPage) end
+        pageIndicator.Text = currentPage.."/2"
+    end
+end)
+rightArrow.MouseButton1Click:Connect(function()
+    if currentPage < 2 then
+        currentPage = currentPage + 1
+        for i, p in ipairs(pages) do p.Visible = (i == currentPage) end
+        pageIndicator.Text = currentPage.."/2"
+    end
+end)
+
+local sig = Instance.new("TextLabel")
+sig.Size = UDim2.new(1, 0, 0, 18)
+sig.Position = UDim2.new(0, 0, 1, -20)
+sig.BackgroundTransparency = 1
+sig.Text = "By BKsama"
+sig.TextColor3 = Color3.new(1, 1, 1)
+sig.TextSize = 11
+sig.TextXAlignment = Enum.TextXAlignment.Center
+sig.Font = Enum.Font.Gotham
+sig.Parent = mainFrame
+
+miniGui = Instance.new("ScreenGui")
+miniGui.Name = "MiniGUI"
+miniGui.Parent = player.PlayerGui
+miniGui.ResetOnSpawn = false
+
+local miniFrame = Instance.new("Frame")
+miniFrame.Size = UDim2.new(0, 80, 0, 30)
+miniFrame.Position = UDim2.new(0, 20, 0.5, -15)
+miniFrame.BackgroundColor3 = Color3.new(1, 0.7, 0.8)
+miniFrame.BackgroundTransparency = 0.5
+miniFrame.BorderSizePixel = 0
+miniFrame.Active = true
+miniFrame.Draggable = true
+miniFrame.Parent = miniGui
+
+local miniBtn = Instance.new("TextButton")
+miniBtn.Size = UDim2.new(1, 0, 1, 0)
+miniBtn.Position = UDim2.new(0, 0, 0, 0)
+miniBtn.BackgroundTransparency = 1
+miniBtn.Text = "打开"
+miniBtn.TextColor3 = Color3.new(1, 1, 1)
+miniBtn.TextSize = 14
+miniBtn.Font = Enum.Font.GothamBold
+miniBtn.Parent = miniFrame
+
+local guiVisible = true
+
+miniBtn.MouseButton1Click:Connect(function()
+    guiVisible = not guiVisible
+    screenGui.Enabled = guiVisible
+    miniBtn.Text = guiVisible and "关闭" or "打开"
+end)
